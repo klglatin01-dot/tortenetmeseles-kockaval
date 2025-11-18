@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <title>Történetkockák – Mesélj 5 dobásból</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #f3f5ff;
+      --bg-gradient: radial-gradient(circle at top, #ffffff 0, #dde7ff 45%, #c3d4ff 100%);
+      --card-bg: #ffffff;
+      --card-border: #d1d9ff;
+      --accent: #3b82f6;
+      --accent-dark: #1d4ed8;
+      --accent-soft: rgba(59, 130, 246, 0.12);
+      --danger: #ef4444;
+      --success: #16a34a;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.15);
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      color: var(--text-main);
+      background: var(--bg-gradient);
+      display: flex;
+      justify-content: center;
+      padding: 24px 12px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1180px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow-soft);
+      padding: 20px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .title-block p {
+      margin: 4px 0 0;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .controls-main {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 9px 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--text-main);
+      border: 1px solid #e5e7eb;
+    }
+
+    .btn-ghost:hover {
+      background: #f3f4ff;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(260px, 1.4fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 960px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .main-column {
+      background: #f8f9ff;
+      border-radius: var(--radius-xl);
+      padding: 16px 16px 18px;
+      border: 1px solid #e0e7ff;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .side-column {
+      background: var(--card-bg);
+      border-radius: var(--radius-xl);
+      padding: 16px 16px 18px;
+      border: 1px solid #e5e7f5;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .dice-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 720px) {
+      .dice-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .dice-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 8px 8px 12px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .dice-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 600;
+    }
+
+    .dice-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-top: 4px;
+    }
+
+    /* Új: 2D „kocka”, mindig egy oldal, olvasható emoji */
+    .dice {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ffffff, #e5edff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      box-shadow: 0 14px 25px rgba(15, 23, 42, 0.25);
+      border: 1px solid #d1ddff;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .dice:hover {
+      transform: translateY(-2px);
+    }
+
+    .dice.shake {
+      animation: shake 0.45s ease-out;
+    }
+
+    @keyframes shake {
+      0%   { transform: translateY(0) rotate(0deg); }
+      20%  { transform: translateY(-3px) rotate(-5deg); }
+      40%  { transform: translateY(2px) rotate(4deg); }
+      60%  { transform: translateY(-2px) rotate(-3deg); }
+      80%  { transform: translateY(1px) rotate(2deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+
+    .dice-help {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .results-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 720px) {
+      .results-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .result-card {
+      background: #fdfdff;
+      border-radius: var(--radius-lg);
+      border: 1px dashed #c4cff2;
+      padding: 7px 8px 8px;
+      min-height: 70px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .result-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-text {
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .result-empty {
+      font-size: 0.85rem;
+      color: #a1a8c3;
+      font-style: italic;
+    }
+
+    .sentence-builder {
+      margin-top: 4px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 10px 12px;
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sentence-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sentence-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .sentence-text {
+      font-size: 0.95rem;
+      min-height: 24px;
+    }
+
+    .sentence-placeholder {
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    .copy-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .side-header {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .side-sub {
+      margin: 2px 0 4px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .help-section {
+      border-radius: 16px;
+      border: 1px solid #e5e7f5;
+      padding: 8px 9px;
+      background: #f9f9ff;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .help-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .help-title span {
+      font-size: 1rem;
+    }
+
+    .help-list {
+      margin: 4px 0 0 14px;
+      padding: 0;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .help-list li {
+      margin-bottom: 2px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #f9fafb;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      box-shadow: 0 18px 30px rgba(15, 23, 42, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+      z-index: 50;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translate(-50%, -4px);
+    }
+
+    .pill {
+      font-size: 0.7rem;
+      border-radius: 999px;
+      padding: 1px 8px;
+      background: rgba(15, 118, 110, 0.08);
+      color: #0f766e;
+      border: 1px solid rgba(45, 212, 191, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="title-block">
+        <h1>Történetkockák – Mesélj 5 dobásból</h1>
+        <p>Kattints a kockákra, és építs rövid történetet: Hős, Helyszín, Konfliktus, Bonyodalom, Megoldás.</p>
+      </div>
+      <div class="controls-main">
+        <button id="rollAllBtn" class="btn-primary">
+          🎲 Összes kocka dobása
+        </button>
+        <button id="clearBtn" class="btn-ghost">
+          ♻️ Választások törlése
+        </button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- Bal oldal – kockák, eredmények, mondat -->
+      <section class="main-column" aria-label="Történetkockák">
+        <div class="dice-row">
+          <div class="dice-card" data-category="hero">
+            <div class="dice-card-header">
+              <span>Hős</span>
+              <span class="badge">Kattints a dobáshoz</span>
+            </div>
+            <div class="dice-wrapper">
+              <div class="dice" role="button" aria-label="Hős dobása">
+                <span>🧒</span>
+              </div>
+            </div>
+            <div class="dice-help">Ki a főszereplő?</div>
+          </div>
+
+          <div class="dice-card" data-category="place">
+            <div class="dice-card-header">
+              <span>Helyszín</span>
+              <span class="badge">Kattints a dobáshoz</span>
+            </div>
+            <div class="dice-wrapper">
+              <div class="dice" role="button" aria-label="Helyszín dobása">
+                <span>📍</span>
+              </div>
+            </div>
+            <div class="dice-help">Hol játszódik?</div>
+          </div>
+
+          <div class="dice-card" data-category="conflict">
+            <div class="dice-card-header">
+              <span>Konfliktus</span>
+              <span class="badge">Kattints a dobáshoz</span>
+            </div>
+            <div class="dice-wrapper">
+              <div class="dice" role="button" aria-label="Konfliktus dobása">
+                <span>⚡</span>
+              </div>
+            </div>
+            <div class="dice-help">Mi a probléma?</div>
+          </div>
+
+          <div class="dice-card" data-category="complication">
+            <div class="dice-card-header">
+              <span>Bonyodalom</span>
+              <span class="badge">Kattints a dobáshoz</span>
+            </div>
+            <div class="dice-wrapper">
+              <div class="dice" role="button" aria-label="Bonyodalom dobása">
+                <span>🌀</span>
+              </div>
+            </div>
+            <div class="dice-help">Mitől lesz még nehezebb?</div>
+          </div>
+
+          <div class="dice-card" data-category="resolution">
+            <div class="dice-card-header">
+              <span>Megoldás</span>
+              <span class="badge">Kattints a dobáshoz</span>
+            </div>
+            <div class="dice-wrapper">
+              <div class="dice" role="button" aria-label="Megoldás dobása">
+                <span>🌈</span>
+              </div>
+            </div>
+            <div class="dice-help">Hogyan rendeződik?</div>
+          </div>
+        </div>
+
+        <div class="results-row" aria-label="Kiválasztott elemek">
+          <div class="result-card" data-result="hero">
+            <div class="result-label">
+              <span>Hős</span>
+              <span class="pill">Ki? Mi?</span>
+            </div>
+            <div class="result-text result-empty">Még nincs kiválasztva.</div>
+          </div>
+
+          <div class="result-card" data-result="place">
+            <div class="result-label">
+              <span>Helyszín</span>
+              <span class="pill">Hol?</span>
+            </div>
+            <div class="result-text result-empty">Még nincs kiválasztva.</div>
+          </div>
+
+          <div class="result-card" data-result="conflict">
+            <div class="result-label">
+              <span>Konfliktus</span>
+              <span class="pill">Mi a gond?</span>
+            </div>
+            <div class="result-text result-empty">Még nincs kiválasztva.</div>
+          </div>
+
+          <div class="result-card" data-result="complication">
+            <div class="result-label">
+              <span>Bonyodalom</span>
+              <span class="pill">Mi rontja tovább?</span>
+            </div>
+            <div class="result-text result-empty">Még nincs kiválasztva.</div>
+          </div>
+
+          <div class="result-card" data-result="resolution">
+            <div class="result-label">
+              <span>Megoldás</span>
+              <span class="pill">Hogyan zárul?</span>
+            </div>
+            <div class="result-text result-empty">Még nincs kiválasztva.</div>
+          </div>
+        </div>
+
+        <div class="sentence-builder">
+          <div class="sentence-label-row">
+            <div class="sentence-label">Egysoros történet</div>
+            <div class="copy-buttons">
+              <button id="copyPicksBtn" class="btn-ghost" style="padding-inline:10px;">
+                📋 Választások másolása
+              </button>
+              <button id="copySentenceBtn" class="btn-primary" style="padding-inline:10px;">
+                ✂️ Mondat másolása
+              </button>
+            </div>
+          </div>
+          <div id="sentenceOutput" class="sentence-text sentence-placeholder">
+            Dobj a kockákkal, és itt automatikusan megjelenik egy egysoros történet.
+          </div>
+        </div>
+      </section>
+
+      <!-- Jobb oldal – segítő nyelvezet -->
+      <aside class="side-column" aria-label="Segítő nyelvezet">
+        <header>
+          <h2 class="side-header">Segítő mondatkezdések</h2>
+          <p class="side-sub">
+            Ezekkel a nyelvi panelek segítségével a diákok könnyebben felépíthetik a történetet magyarul.
+          </p>
+        </header>
+
+        <div id="helpSections">
+          <!-- JS tölti be -->
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // ------------------- Adathalmazok -------------------
+    const DATASETS = {
+      hero: [
+        { icon: "🧒", text: "egy kíváncsi ötödikes" },
+        { icon: "🧑‍🏫", text: "egy kissé szigorú tanár" },
+        { icon: "🧙‍♂️", text: "egy kezdő varázsló" },
+        { icon: "🧑‍🚀", text: "egy bátor űrhajós" },
+        { icon: "🐱", text: "egy beszélő macska" },
+        { icon: "🐶", text: "egy túlbuzgó kutya" },
+        { icon: "🧑‍💻", text: "egy játékfejlesztő diák" },
+        { icon: "🧝‍♀️", text: "egy titokzatos tündelány" },
+        { icon: "🤴", text: "egy álmos herceg" },
+        { icon: "🧟‍♂️", text: "egy barátságos zombi" }
+      ],
+      place: [
+        { icon: "🏫", text: "az iskola folyosóján" },
+        { icon: "🏰", text: "egy elhagyatott kastélyban" },
+        { icon: "🌋", text: "egy működő vulkán tetején" },
+        { icon: "🛰️", text: "egy űrállomáson" },
+        { icon: "🌳", text: "az iskola udvarán" },
+        { icon: "🧪", text: "a természettudományi laborban" },
+        { icon: "🏞️", text: "egy rejtett völgyben" },
+        { icon: "🚂", text: "egy zakatoló vonaton" },
+        { icon: "🏙️", text: "egy jövőbeli városban" },
+        { icon: "🏝️", text: "egy kietlen szigeten" }
+      ],
+      conflict: [
+        { icon: "⚡", text: "titokzatosan eltűnik a házi feladat" },
+        { icon: "🚫", text: "valaki lekapcsolja az egész iskola áramát" },
+        { icon: "😱", text: "egy tiltott gomb megnyomása mindent megváltoztat" },
+        { icon: "📉", text: "egy fontos verseny előtt mindenki megbetegszik" },
+        { icon: "🕳️", text: "valaki elrontja az időgépet" },
+        { icon: "🔥", text: "a legjobb barát hirtelen eltűnik" },
+        { icon: "🧊", text: "egy ősi átok aktiválódik" },
+        { icon: "💣", text: "a városra örök sötétség borul" },
+        { icon: "😨", text: "a telefonok hirtelen életre kelnek" },
+        { icon: "🤯", text: "valaki ellopja az osztály kabalafiguráját" }
+      ],
+      complication: [
+        { icon: "🌀", text: "a szereplőknek csak egyetlen órájuk marad" },
+        { icon: "⏳", text: "senki nem emlékszik pontosan, mi történt" },
+        { icon: "🔁", text: "újabb szereplő tűnik el nyomtalanul" },
+        { icon: "🌧️", text: "a segítségként hívott felnőttek sem hisznek nekik" },
+        { icon: "🧩", text: "egy félresikerült varázslat mindent fejre állít" },
+        { icon: "📵", text: "elkezd szakadni az eső az épületen belül is" },
+        { icon: "🚧", text: "a nyomok teljesen ellentmondanak egymásnak" },
+        { icon: "🌪️", text: "egy váratlan áramszünet mindent leállít" },
+        { icon: "🙈", text: "a hősök összevesznek egymással" },
+        { icon: "🧱", text: "a megoldáshoz egy titkos kódot kell megfejteniük" }
+      ],
+      resolution: [
+        { icon: "🌈", text: "a szereplők összefognak és megoldják a rejtélyt" },
+        { icon: "🎉", text: "kiderül, hogy a hibából valami jó születik" },
+        { icon: "🤝", text: "valaki bocsánatot kér, és minden rendeződik" },
+        { icon: "🏆", text: "egy váratlan segítő érkezik" },
+        { icon: "💡", text: "a hősök fontos leckét tanulnak a barátságról" },
+        { icon: "😊", text: "minden visszaáll a régi kerékvágásba, de egy kicsit mindenki megváltozik" },
+        { icon: "📘", text: "a rejtély megoldása vidám ünneplésbe torkollik" },
+        { icon: "🕊️", text: "a hősök új szabályokat vezetnek be, hogy ez többé ne történhessen meg" },
+        { icon: "🌟", text: "a kudarc ellenére rájönnek, hogy együtt erősebbek" },
+        { icon: "✅", text: "a történet békés, reményteli hangulatban zárul" }
+      ]
+    };
+
+    const HELP_TEXT = {
+      hero: {
+        label: "Hős",
+        icon: "🧒",
+        items: [
+          "A történet főszereplője ...",
+          "A történet arról szól, hogy ...",
+          "A történet elején megismerjük ..."
+        ]
+      },
+      place: {
+        label: "Helyszín",
+        icon: "📍",
+        items: [
+          "A történet egy ...-ban/ben játszódik.",
+          "Minden egy ...-ban/ben kezdődik.",
+          "A helyszín különlegessége, hogy ..."
+        ]
+      },
+      conflict: {
+        label: "Konfliktus",
+        icon: "⚡",
+        items: [
+          "A probléma az, hogy ...",
+          "A baj akkor kezdődik, amikor ...",
+          "Hirtelen az történik, hogy ..."
+        ]
+      },
+      complication: {
+        label: "Bonyodalom",
+        icon: "🌀",
+        items: [
+          "Hogy még rosszabb legyen, ...",
+          "A helyzet tovább bonyolódik, amikor ...",
+          "Ezen felül az is nehezíti a dolgot, hogy ..."
+        ]
+      },
+      resolution: {
+        label: "Megoldás",
+        icon: "🌈",
+        items: [
+          "A végén ...",
+          "Végül sikerül ...",
+          "Ennek eredményeként ..."
+        ]
+      }
+    };
+
+    const CATEGORIES = ["hero", "place", "conflict", "complication", "resolution"];
+
+    const currentChoices = {
+      hero: null,
+      place: null,
+      conflict: null,
+      complication: null,
+      resolution: null
+    };
+
+    // ------------------- Segédfüggvények -------------------
+    function randomOf(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      clearTimeout(showToast._timeout);
+      showToast._timeout = setTimeout(() => {
+        toast.classList.remove("visible");
+      }, 1800);
+    }
+
+    function updateResultUI(category) {
+      const card = document.querySelector(`.result-card[data-result="${category}"]`);
+      if (!card) return;
+      const resultDiv = card.querySelector(".result-text");
+      const choice = currentChoices[category];
+
+      if (!choice) {
+        resultDiv.textContent = "Még nincs kiválasztva.";
+        resultDiv.classList.add("result-empty");
+      } else {
+        resultDiv.textContent = choice.text;
+        resultDiv.classList.remove("result-empty");
+      }
+    }
+
+    function buildSentence() {
+      const { hero, place, conflict, complication, resolution } = currentChoices;
+      const output = document.getElementById("sentenceOutput");
+
+      if (!hero && !place && !conflict && !complication && !resolution) {
+        output.textContent = "Dobj a kockákkal, és itt automatikusan megjelenik egy egysoros történet.";
+        output.classList.add("sentence-placeholder");
+        return;
+      }
+
+      const h = hero ? hero.text : "valaki";
+      const p = place ? place.text : "valahol";
+      const c = conflict ? conflict.text : "valami furcsa történik";
+      const b = complication ? complication.text : "a helyzet egyre nehezebb lesz";
+      const r = resolution ? resolution.text : "végül minden rendeződik";
+
+      const sentence =
+        `A történet hőse ${h}, aki ${p}, amikor ${c}. ` +
+        `Hogy még bonyolultabb legyen, ${b}, de ${r}.`;
+
+      output.textContent = sentence;
+      output.classList.remove("sentence-placeholder");
+    }
+
+    function choiceFor(category) {
+      const dataset = DATASETS[category];
+      if (!dataset) return null;
+      return randomOf(dataset);
+    }
+
+    function rollCategory(category) {
+      const card = document.querySelector(`.dice-card[data-category="${category}"]`);
+      if (!card) return;
+      const dice = card.querySelector(".dice");
+
+      // „dobás” – finom remegés, de az emoji mindig olvasható marad
+      dice.classList.remove("shake");
+      void dice.offsetWidth; // reflow, hogy újra lehessen indítani az animációt
+      dice.classList.add("shake");
+
+      const pick = choiceFor(category);
+      currentChoices[category] = pick;
+
+      const span = dice.querySelector("span");
+      if (span) span.textContent = pick.icon;
+
+      updateResultUI(category);
+      buildSentence();
+    }
+
+    function clearAll() {
+      CATEGORIES.forEach(cat => {
+        currentChoices[cat] = null;
+        updateResultUI(cat);
+
+        const card = document.querySelector(`.dice-card[data-category="${cat}"]`);
+        const dice = card && card.querySelector(".dice");
+        if (dice) {
+          const span = dice.querySelector("span");
+          const defaultIcon =
+            cat === "hero" ? "🧒" :
+            cat === "place" ? "📍" :
+            cat === "conflict" ? "⚡" :
+            cat === "complication" ? "🌀" : "🌈";
+          if (span) span.textContent = defaultIcon;
+        }
+      });
+      buildSentence();
+    }
+
+    function copyPicksToClipboard() {
+      const parts = [];
+      CATEGORIES.forEach(cat => {
+        const label =
+          cat === "hero" ? "Hős" :
+          cat === "place" ? "Helyszín" :
+          cat === "conflict" ? "Konfliktus" :
+          cat === "complication" ? "Bonyodalom" :
+          "Megoldás";
+        const choice = currentChoices[cat];
+        parts.push(`${label}: ${choice ? choice.text : "—"}`);
+      });
+      const text = parts.join("\n");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast("A választások a vágólapra kerültek."))
+          .catch(() => showToast("Nem sikerült a másolás."));
+      } else {
+        showToast("A böngésző nem támogatja a vágólap-másolást.");
+      }
+    }
+
+    function copySentenceToClipboard() {
+      const output = document.getElementById("sentenceOutput");
+      const text = output.textContent.trim();
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast("Az egysoros történet a vágólapra került."))
+          .catch(() => showToast("Nem sikerült a másolás."));
+      } else {
+        showToast("A böngésző nem támogatja a vágólap-másolást.");
+      }
+    }
+
+    function buildHelpSections() {
+      const container = document.getElementById("helpSections");
+      Object.entries(HELP_TEXT).forEach(([key, config]) => {
+        const wrapper = document.createElement("section");
+        wrapper.className = "help-section";
+
+        const title = document.createElement("div");
+        title.className = "help-title";
+        const labelSpan = document.createElement("span");
+        labelSpan.textContent = config.label;
+        const iconSpan = document.createElement("span");
+        iconSpan.textContent = config.icon;
+        title.appendChild(labelSpan);
+        title.appendChild(iconSpan);
+
+        const list = document.createElement("ul");
+        list.className = "help-list";
+        config.items.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          list.appendChild(li);
+        });
+
+        wrapper.appendChild(title);
+        wrapper.appendChild(list);
+
+        container.appendChild(wrapper);
+      });
+    }
+
+    // ------------------- Inicializálás -------------------
+    document.addEventListener("DOMContentLoaded", () => {
+      // Kockák kattintása
+      document.querySelectorAll(".dice-card").forEach(card => {
+        const category = card.getAttribute("data-category");
+        const dice = card.querySelector(".dice");
+        dice.addEventListener("click", () => rollCategory(category));
+      });
+
+      document.getElementById("rollAllBtn").addEventListener("click", () => {
+        let delay = 0;
+        CATEGORIES.forEach(cat => {
+          setTimeout(() => rollCategory(cat), delay);
+          delay += 120;
+        });
+      });
+
+      document.getElementById("clearBtn").addEventListener("click", clearAll);
+      document.getElementById("copyPicksBtn").addEventListener("click", copyPicksToClipboard);
+      document.getElementById("copySentenceBtn").addEventListener("click", copySentenceToClipboard);
+
+      buildHelpSections();
+      buildSentence();
+    });
+  </script>
+</body>
+</html>
